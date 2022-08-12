@@ -5,6 +5,6 @@ public class MyButton extends Button {
     public MyButton(String text) {
         super(text);
         setFont(Wordle.font);
-        setMinSize(50, 50);
+        setPrefSize(50, 65);
     }
 }

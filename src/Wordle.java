@@ -13,15 +13,16 @@ import java.util.Arrays;
 /**
  * HOW TO PLAY:
  * Guess the WORDLE in 6 tries.
- * Each guess must be a valid 5-digit number. There are no repeated digits in the number. Hit the enter button to submit.
- * After each guess, the color of the tiles will change to show how close your guess was to the number.
+ * Each guess must be a valid 5-letter word. Hit the enter button to submit.
+ * After each guess, the color of the tiles will change to show how close your guess was to the word.
  * <p>
  * EXAMPLE:
- * Wordle - 12345.
- * Your guess - 98361.
- * The digit '3' is in the number and in the correct spot. So the color of it tile turned green.
- * The digit '1' is in the number but in the wrong spot. So the color of it tile turned yellow.
- * The digits '9', '8' and '6' not in the number i any spot. So the color of their tiles turned gray.
+ * WEARY
+ * The letter W is in the word and in the correct spot. So the color of it tile turned green.
+ * PILLS
+ * The letter I is in the word but in the wrong spot. So the color of it tile turned yellow.
+ * VAGUE
+ * The letter U is not in the word in any spot. So the color of their tiles turned gray.
  * <p>
  * JAVAFX DESCRIPTION:
  * For the correct work of program it is necessary download and install JavaFX application.
@@ -42,16 +43,18 @@ public class Wordle extends Application {
     private String attempt = "";
     private boolean isEndOfGame = false;
 
+
     @Override
     public void start(Stage stage) {
         try {
             AnchorPane root = new AnchorPane();
             Scene scene = new Scene(root);
             stage.setScene(scene);
-            stage.setWidth(310);
+            stage.setTitle("WORDLE");
+            stage.setWidth(610);
             stage.setHeight(600);
             stage.setResizable(false);
-            addComp(root);
+            addComponents(root);
             stage.show();
 
         } catch (Exception e) {
@@ -59,87 +62,154 @@ public class Wordle extends Application {
         }
     }
 
-    private void addComp(AnchorPane root) {
 
-        // adding a (WORDLE_LENGTH x WORDLE_LENGTH) tiles field
-        for (int y = 10; y < 300; y += 60) {
-            for (int x = 10; x < 300; x += 60) {
-                Tile tile = new Tile(x, y);
-                arrayOfTiles.add(tile);
-                root.getChildren().add(tile);
+    private void addComponents(AnchorPane root) {
+        Pane tilesPane = new Pane(150, 10);
+        root.getChildren().add(tilesPane);
+
+        for (int i = 0; i < WORDLE_LENGTH * WORDLE_LENGTH; i++) {
+            Tile tile = new Tile();
+            arrayOfTiles.add(tile);
+        }
+
+        int item = 0;
+        for (int i = 1; i <= WORDLE_LENGTH; i++) {
+            for (int j = 1; j <= WORDLE_LENGTH; j++) {
+                tilesPane.add(arrayOfTiles.get(item++), j, i);
             }
         }
 
-        // Adding pane for digits components (buttons)
-        Pane digitsPane = new Pane(325);
-        root.getChildren().add(digitsPane);
+        Pane buttonsPaneFirstLine = new Pane(0, 325);
+        root.getChildren().add(buttonsPaneFirstLine);
+        Pane buttonsPaneSecondLine = new Pane(25, 390);
+        root.getChildren().add(buttonsPaneSecondLine);
+        Pane buttonsPaneThirdLine = new Pane(0, 455);
+        root.getChildren().add(buttonsPaneThirdLine);
 
-        // Adding pane for logic components (buttons)
-        Pane logicPane = new Pane(445);
-        root.getChildren().add(logicPane);
-
-        // Adding pane for new game button
-        Pane newGamePane = new Pane(495);
-        root.getChildren().add(newGamePane);
-
-        // Creating digit listener
-        DigitEvent digitEvent = new DigitEvent();
+        // Creating letters listener
+        LetterEvent letterEvent = new LetterEvent();
 
         // Adding buttons
-        Button btn_1 = new MyButton("1");
-        btn_1.setOnMouseClicked(digitEvent);
-        digitsPane.add(btn_1, 1, 1);
+        Button btn_q = new MyButton("Q");
+        btn_q.setOnMouseClicked(letterEvent);
+        buttonsPaneFirstLine.add(btn_q, 1, 1);
 
-        Button btn_2 = new MyButton("2");
-        btn_2.setOnMouseClicked(digitEvent);
-        digitsPane.add(btn_2, 2, 1);
+        Button btn_w = new MyButton("W");
+        btn_w.setOnMouseClicked(letterEvent);
+        buttonsPaneFirstLine.add(btn_w, 2, 1);
 
-        Button btn_3 = new MyButton("3");
-        btn_3.setOnMouseClicked(digitEvent);
-        digitsPane.add(btn_3, 3, 1);
+        Button btn_e = new MyButton("E");
+        btn_e.setOnMouseClicked(letterEvent);
+        buttonsPaneFirstLine.add(btn_e, 3, 1);
 
-        Button btn_4 = new MyButton("4");
-        btn_4.setOnMouseClicked(digitEvent);
-        digitsPane.add(btn_4, 4, 1);
+        Button btn_r = new MyButton("R");
+        btn_r.setOnMouseClicked(letterEvent);
+        buttonsPaneFirstLine.add(btn_r, 4, 1);
 
-        Button btn_5 = new MyButton("5");
-        btn_5.setOnMouseClicked(digitEvent);
-        digitsPane.add(btn_5, 5, 1);
+        Button btn_t = new MyButton("T");
+        btn_t.setOnMouseClicked(letterEvent);
+        buttonsPaneFirstLine.add(btn_t, 5, 1);
 
-        Button btn_6 = new MyButton("6");
-        btn_6.setOnMouseClicked(digitEvent);
-        digitsPane.add(btn_6, 1, 2);
+        Button btn_y = new MyButton("Y");
+        btn_y.setOnMouseClicked(letterEvent);
+        buttonsPaneFirstLine.add(btn_y, 6, 1);
 
-        Button btn_7 = new MyButton("7");
-        btn_7.setOnMouseClicked(digitEvent);
-        digitsPane.add(btn_7, 2, 2);
+        Button btn_u = new MyButton("U");
+        btn_u.setOnMouseClicked(letterEvent);
+        buttonsPaneFirstLine.add(btn_u, 7, 1);
 
-        Button btn_8 = new MyButton("8");
-        btn_8.setOnMouseClicked(digitEvent);
-        digitsPane.add(btn_8, 3, 2);
+        Button btn_i = new MyButton("I");
+        btn_i.setOnMouseClicked(letterEvent);
+        buttonsPaneFirstLine.add(btn_i, 8, 1);
 
-        Button btn_9 = new MyButton("9");
-        btn_9.setOnMouseClicked(digitEvent);
-        digitsPane.add(btn_9, 4, 2);
+        Button btn_o = new MyButton("O");
+        btn_o.setOnMouseClicked(letterEvent);
+        buttonsPaneFirstLine.add(btn_o, 9, 1);
 
-        Button btn_0 = new MyButton("0");
-        btn_0.setOnMouseClicked(digitEvent);
-        digitsPane.add(btn_0, 5, 2);
+        Button btn_p = new MyButton("P");
+        btn_p.setOnMouseClicked(letterEvent);
+        buttonsPaneFirstLine.add(btn_p, 10, 1);
 
-        Button btn_del = new MyButton("delete");
-        btn_del.setMinSize(110, 50);
-        btn_del.setOnMouseClicked((EventHandler<Event>) event -> delete());
-        logicPane.add(btn_del, 2, 1);
+        Button btn_a = new MyButton("A");
+        btn_a.setOnMouseClicked(letterEvent);
+        buttonsPaneSecondLine.add(btn_a, 1, 2);
 
-        Button btn_enter = new MyButton("enter");
-        btn_enter.setMinSize(170, 50);
+        Button btn_s = new MyButton("S");
+        btn_s.setOnMouseClicked(letterEvent);
+        buttonsPaneSecondLine.add(btn_s, 2, 2);
+
+        Button btn_d = new MyButton("D");
+        btn_d.setOnMouseClicked(letterEvent);
+        buttonsPaneSecondLine.add(btn_d, 3, 2);
+
+        Button btn_f = new MyButton("F");
+        btn_f.setOnMouseClicked(letterEvent);
+        buttonsPaneSecondLine.add(btn_f, 4, 2);
+
+        Button btn_g = new MyButton("G");
+        btn_g.setOnMouseClicked(letterEvent);
+        buttonsPaneSecondLine.add(btn_g, 5, 2);
+
+        Button btn_h = new MyButton("H");
+        btn_h.setOnMouseClicked(letterEvent);
+        buttonsPaneSecondLine.add(btn_h, 6, 2);
+
+        Button btn_j = new MyButton("J");
+        btn_j.setOnMouseClicked(letterEvent);
+        buttonsPaneSecondLine.add(btn_j, 7, 2);
+
+        Button btn_k = new MyButton("K");
+        btn_k.setOnMouseClicked(letterEvent);
+        buttonsPaneSecondLine.add(btn_k, 8, 2);
+
+        Button btn_l = new MyButton("L");
+        btn_l.setOnMouseClicked(letterEvent);
+        buttonsPaneSecondLine.add(btn_l, 9, 2);
+
+        Button btn_z = new MyButton("Z");
+        btn_z.setOnMouseClicked(letterEvent);
+        buttonsPaneThirdLine.add(btn_z, 2, 3);
+
+        Button btn_x = new MyButton("X");
+        btn_x.setOnMouseClicked(letterEvent);
+        buttonsPaneThirdLine.add(btn_x, 3, 3);
+
+        Button btn_c = new MyButton("C");
+        btn_c.setOnMouseClicked(letterEvent);
+        buttonsPaneThirdLine.add(btn_c, 4, 3);
+
+        Button btn_v = new MyButton("V");
+        btn_v.setOnMouseClicked(letterEvent);
+        buttonsPaneThirdLine.add(btn_v, 5, 3);
+
+        Button btn_b = new MyButton("B");
+        btn_b.setOnMouseClicked(letterEvent);
+        buttonsPaneThirdLine.add(btn_b, 6, 3);
+
+        Button btn_n = new MyButton("N");
+        btn_n.setOnMouseClicked(letterEvent);
+        buttonsPaneThirdLine.add(btn_n, 7, 3);
+
+        Button btn_m = new MyButton("M");
+        btn_m.setOnMouseClicked(letterEvent);
+        buttonsPaneThirdLine.add(btn_m, 8, 3);
+
+        Button btn_enter = new MyButton("↵");
+        btn_enter.setMinWidth(75);
+        btn_enter.setFont(Font.font("Arial", 35));
         btn_enter.setOnMouseClicked((EventHandler<Event>) event -> enter());
-        logicPane.add(btn_enter, 1, 1);
+        buttonsPaneThirdLine.add(btn_enter, 1, 3);
 
-        Button btn_newGame = new MyButton("new game");
-        btn_newGame.setMinSize(290, 50);
-        btn_newGame.setOnMouseClicked((EventHandler<Event>) event -> newGame());
-        newGamePane.add(btn_newGame, 1, 2);
+        Button btn_del = new MyButton("⌫");
+        btn_del.setMinWidth(85);
+        btn_del.setFont(Font.font("Arial", 30));
+        btn_del.setOnMouseClicked((EventHandler<Event>) event -> delete());
+        buttonsPaneThirdLine.add(btn_del, 9, 3);
+
+//        Button btn_newGame = new MyButton("new game");
+//        btn_newGame.setMinSize(290, 50);
+//        btn_newGame.setOnMouseClicked((EventHandler<Event>) event -> newGame());
+//        newGamePane.add(btn_newGame, 1, 2);
     }
 
 
@@ -180,10 +250,10 @@ public class Wordle extends Application {
         }
         if (Arrays.equals(attemptInChars, wordle)) {
             isEndOfGame = true;
-            if (index == arrayOfTiles.size()) {
+            if (index > arrayOfTiles.size()) {
                 System.out.println("You lose");
             } else {
-                System.out.println("Yoe win");
+                System.out.println("You win");
             }
         }
     }
@@ -206,7 +276,7 @@ public class Wordle extends Application {
     }
 
 
-    public class DigitEvent implements EventHandler<Event> {
+    public class LetterEvent implements EventHandler<Event> {
         public void handle(Event event) {
             if (isEndOfGame) {
                 System.out.println("isEndOfGame");
@@ -219,9 +289,9 @@ public class Wordle extends Application {
             // Getting source of event (getting the button that triggered the event)
             MyButton btn = (MyButton) event.getSource();
             // Getting content of current button
-            String btnDigit = btn.getText();
-            arrayOfTiles.get(index).setText(btnDigit);
-            attempt += btnDigit;
+            String btnLetter = btn.getText();
+            arrayOfTiles.get(index).setText(btnLetter);
+            attempt += btnLetter;
             index++;
             counter++;
         }
@@ -229,9 +299,9 @@ public class Wordle extends Application {
 
 
     public static void main(String[] args) {
-        Generator generator = new Generator();
-        wordle = generator.getWordle();
-        System.out.println(wordle);
+//        Generator generator = new Generator();
+//        wordle = generator.getWordle();
+//        System.out.println(wordle);
         launch(args);
     }
 }
