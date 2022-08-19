@@ -5,7 +5,10 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
+
+import java.sql.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,14 +38,21 @@ import java.util.Arrays;
 
 public class Wordle extends Application {
     static Font font = Font.font("Arial", 20);
+
     public static final int WORDLE_LENGTH = 5;
     static char[] wordle;
+
     private final ArrayList<Tile> arrayOfTiles = new ArrayList<>();
     private int index = 0;  // Index of each tile in tiles field.
-    private int counter = 0;    // Counter for every digit in each attempt. Counter = from 0 to WORDLE_LENGTH
+    private int counter = 0;    // Counter for every letter in each attempt. Counter = from 0 to WORDLE_LENGTH
     private String attempt = "";
     private boolean isEndOfGame = false;
 
+    static Connection connection;
+    static Statement statement;
+    static ResultSet resultSet;
+
+    static Pane messagePane;
 
     @Override
     public void start(Stage stage) {
@@ -52,7 +62,7 @@ public class Wordle extends Application {
             stage.setScene(scene);
             stage.setTitle("WORDLE");
             stage.setWidth(610);
-            stage.setHeight(600);
+            stage.setHeight(645);
             stage.setResizable(false);
             addComponents(root);
             stage.show();
@@ -64,7 +74,7 @@ public class Wordle extends Application {
 
 
     private void addComponents(AnchorPane root) {
-        Pane tilesPane = new Pane(150, 10);
+        Pane tilesPane = new Pane(150, 5);
         root.getChildren().add(tilesPane);
 
         for (int i = 0; i < WORDLE_LENGTH * WORDLE_LENGTH; i++) {
@@ -79,11 +89,19 @@ public class Wordle extends Application {
             }
         }
 
-        Pane buttonsPaneFirstLine = new Pane(0, 325);
+        Pane topLinePane = new Pane(0, 5);
+        root.getChildren().add(topLinePane);
+
+        messagePane = new Pane(0, 300);
+        root.getChildren().add(messagePane);
+
+        Pane buttonsPaneFirstLine = new Pane(0, 375);
         root.getChildren().add(buttonsPaneFirstLine);
-        Pane buttonsPaneSecondLine = new Pane(25, 390);
+
+        Pane buttonsPaneSecondLine = new Pane(25, 440);
         root.getChildren().add(buttonsPaneSecondLine);
-        Pane buttonsPaneThirdLine = new Pane(0, 455);
+
+        Pane buttonsPaneThirdLine = new Pane(0, 505);
         root.getChildren().add(buttonsPaneThirdLine);
 
         // Creating letters listener
@@ -92,14 +110,17 @@ public class Wordle extends Application {
         // Adding buttons
         Button btn_q = new MyButton("Q");
         btn_q.setOnMouseClicked(letterEvent);
+        btn_q.setStyle("-fx-base: yellow");
         buttonsPaneFirstLine.add(btn_q, 1, 1);
 
         Button btn_w = new MyButton("W");
         btn_w.setOnMouseClicked(letterEvent);
+        btn_w.setStyle("-fx-base: green");
         buttonsPaneFirstLine.add(btn_w, 2, 1);
 
         Button btn_e = new MyButton("E");
         btn_e.setOnMouseClicked(letterEvent);
+        btn_e.setStyle("-fx-base: grey");
         buttonsPaneFirstLine.add(btn_e, 3, 1);
 
         Button btn_r = new MyButton("R");
@@ -206,17 +227,27 @@ public class Wordle extends Application {
         btn_del.setOnMouseClicked((EventHandler<Event>) event -> delete());
         buttonsPaneThirdLine.add(btn_del, 9, 3);
 
-//        Button btn_newGame = new MyButton("new game");
-//        btn_newGame.setMinSize(290, 50);
-//        btn_newGame.setOnMouseClicked((EventHandler<Event>) event -> newGame());
-//        newGamePane.add(btn_newGame, 1, 2);
+        Button btn_giveUp = new MyButton("give up");
+        btn_giveUp.setPrefWidth(110);
+        btn_giveUp.setPrefHeight(10);
+        btn_giveUp.setOnMouseClicked((EventHandler<Event>) event -> giveUp());
+        topLinePane.add(btn_giveUp, 1, 1);
+    }
+
+
+    private void giveUp() {
+        isEndOfGame = true;
     }
 
 
     private void delete() {
+        if (isEndOfGame) {
+            return;
+        }
         if (index == 0 || counter == 0) {
             return;
         }
+        Message.clean();
         index--;
         counter--;
         attempt = attempt.substring(0, attempt.length() - 1);
@@ -225,9 +256,19 @@ public class Wordle extends Application {
 
 
     private void enter() {
+        if (isEndOfGame) {
+            newGame();
+        }
+
         if (counter != 5) {
             return;
         }
+
+        if (!isWordExist(attempt)) {
+            Message.wordNotFound();
+            return;
+        }
+
         counter = 0;
         char[] attemptInChars = attempt.toCharArray();
         attempt = "";
@@ -259,33 +300,42 @@ public class Wordle extends Application {
     }
 
 
+    private boolean isWordExist(String attempt) {
+        String query = "SELECT EXISTS(SELECT Word FROM wordle.Words WHERE word = '" + attempt + "')";
+        try {
+            statement = connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+            resultSet = statement.executeQuery(query);
+            resultSet.absolute(1);
+            return resultSet.getBoolean(1);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
     private void newGame() {
         index = 0;
         counter = 0;
         attempt = "";
         isEndOfGame = false;
-        Generator generator = new Generator();
-        wordle = generator.getWordle();
-        System.out.println(wordle);
-
-        // cleaning a WORDLE_LENGTH x WORDLE_LENGTH tiles field
+        Message.clean();
         for (Tile tile : arrayOfTiles) {
             tile.setText("");
             tile.setStyle("-fx-control-inner-background: white;");
         }
+        getWordle();
     }
 
 
-    public class LetterEvent implements EventHandler<Event> {
+    private class LetterEvent implements EventHandler<Event> {
         public void handle(Event event) {
             if (isEndOfGame) {
-                System.out.println("isEndOfGame");
+                System.out.println("It is the end of game");
                 return;
             }
             if (counter == 5) {
                 return;
             }
-
             // Getting source of event (getting the button that triggered the event)
             MyButton btn = (MyButton) event.getSource();
             // Getting content of current button
@@ -298,10 +348,56 @@ public class Wordle extends Application {
     }
 
 
+    public static void getConnectionToDB() {
+        String url = "jdbc:mysql://localhost:3306/wordle";
+        String user = "root";
+        String password = "prasby";
+
+        try {
+            System.out.println("Establishing connection to database");
+            connection = DriverManager.getConnection(url, user, password);
+            System.out.println("Successfully connected to database");
+        } catch (SQLException e) {
+            System.out.println("Error establishing a database connection");
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    public static void closeConnectionToDB() {
+        try {
+            statement.close();
+            resultSet.close();
+            connection.close();
+            System.out.println("Connection successfully closed");
+        } catch (Exception e) {
+            System.out.println("Error closing a database connection");
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    public static void getWordle() {
+        String query = "SELECT * FROM wordle.Words ORDER BY RAND() LIMIT 1";
+        try {
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery(query);
+            while (resultSet.next()) {
+                String word = resultSet.getString(2);
+                wordle = word.toUpperCase().toCharArray();
+                System.out.println(word);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error getting Wordle");
+            throw new RuntimeException(e);
+        }
+    }
+
+
     public static void main(String[] args) {
-//        Generator generator = new Generator();
-//        wordle = generator.getWordle();
-//        System.out.println(wordle);
+        getConnectionToDB();
+        getWordle();
         launch(args);
+        closeConnectionToDB();
     }
 }
