@@ -5,13 +5,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.sql.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  * HOW TO PLAY:
@@ -40,8 +40,10 @@ public class Wordle extends Application {
     static Font font = Font.font("Arial", 20);
 
     public static final int WORDLE_LENGTH = 5;
+    private static String word;
     static char[] wordle;
 
+    private final HashMap<String, MyButton> buttons = new HashMap<>();
     private final ArrayList<Tile> arrayOfTiles = new ArrayList<>();
     private int index = 0;  // Index of each tile in tiles field.
     private int counter = 0;    // Counter for every letter in each attempt. Counter = from 0 to WORDLE_LENGTH
@@ -52,8 +54,6 @@ public class Wordle extends Application {
     static Statement statement;
     static ResultSet resultSet;
 
-    static Pane messagePane;
-
     @Override
     public void start(Stage stage) {
         try {
@@ -62,7 +62,7 @@ public class Wordle extends Application {
             stage.setScene(scene);
             stage.setTitle("WORDLE");
             stage.setWidth(610);
-            stage.setHeight(645);
+            stage.setHeight(610);
             stage.setResizable(false);
             addComponents(root);
             stage.show();
@@ -92,128 +92,33 @@ public class Wordle extends Application {
         Pane topLinePane = new Pane(0, 5);
         root.getChildren().add(topLinePane);
 
-        messagePane = new Pane(0, 300);
-        root.getChildren().add(messagePane);
-
-        Pane buttonsPaneFirstLine = new Pane(0, 375);
+        Pane buttonsPaneFirstLine = new Pane(0, 340);
         root.getChildren().add(buttonsPaneFirstLine);
 
-        Pane buttonsPaneSecondLine = new Pane(25, 440);
+        Pane buttonsPaneSecondLine = new Pane(25, 405);
         root.getChildren().add(buttonsPaneSecondLine);
 
-        Pane buttonsPaneThirdLine = new Pane(0, 505);
+        Pane buttonsPaneThirdLine = new Pane(0, 470);
         root.getChildren().add(buttonsPaneThirdLine);
 
         // Creating letters listener
         LetterEvent letterEvent = new LetterEvent();
 
         // Adding buttons
-        Button btn_q = new MyButton("Q");
-        btn_q.setOnMouseClicked(letterEvent);
-        btn_q.setStyle("-fx-base: yellow");
-        buttonsPaneFirstLine.add(btn_q, 1, 1);
+        String[] lettersFirstLine = {"Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"};
+        for (int i = 0; i < 10; i++) {
+            createButton(buttonsPaneFirstLine, letterEvent, lettersFirstLine[i], i + 1, 1);
+        }
 
-        Button btn_w = new MyButton("W");
-        btn_w.setOnMouseClicked(letterEvent);
-        btn_w.setStyle("-fx-base: green");
-        buttonsPaneFirstLine.add(btn_w, 2, 1);
+        String[] lettersSecondLine = {"A", "S", "D", "F", "G", "H", "J", "K", "L"};
+        for (int i = 0; i < 9; i++) {
+            createButton(buttonsPaneSecondLine, letterEvent, lettersSecondLine[i], i + 1, 2);
+        }
 
-        Button btn_e = new MyButton("E");
-        btn_e.setOnMouseClicked(letterEvent);
-        btn_e.setStyle("-fx-base: grey");
-        buttonsPaneFirstLine.add(btn_e, 3, 1);
-
-        Button btn_r = new MyButton("R");
-        btn_r.setOnMouseClicked(letterEvent);
-        buttonsPaneFirstLine.add(btn_r, 4, 1);
-
-        Button btn_t = new MyButton("T");
-        btn_t.setOnMouseClicked(letterEvent);
-        buttonsPaneFirstLine.add(btn_t, 5, 1);
-
-        Button btn_y = new MyButton("Y");
-        btn_y.setOnMouseClicked(letterEvent);
-        buttonsPaneFirstLine.add(btn_y, 6, 1);
-
-        Button btn_u = new MyButton("U");
-        btn_u.setOnMouseClicked(letterEvent);
-        buttonsPaneFirstLine.add(btn_u, 7, 1);
-
-        Button btn_i = new MyButton("I");
-        btn_i.setOnMouseClicked(letterEvent);
-        buttonsPaneFirstLine.add(btn_i, 8, 1);
-
-        Button btn_o = new MyButton("O");
-        btn_o.setOnMouseClicked(letterEvent);
-        buttonsPaneFirstLine.add(btn_o, 9, 1);
-
-        Button btn_p = new MyButton("P");
-        btn_p.setOnMouseClicked(letterEvent);
-        buttonsPaneFirstLine.add(btn_p, 10, 1);
-
-        Button btn_a = new MyButton("A");
-        btn_a.setOnMouseClicked(letterEvent);
-        buttonsPaneSecondLine.add(btn_a, 1, 2);
-
-        Button btn_s = new MyButton("S");
-        btn_s.setOnMouseClicked(letterEvent);
-        buttonsPaneSecondLine.add(btn_s, 2, 2);
-
-        Button btn_d = new MyButton("D");
-        btn_d.setOnMouseClicked(letterEvent);
-        buttonsPaneSecondLine.add(btn_d, 3, 2);
-
-        Button btn_f = new MyButton("F");
-        btn_f.setOnMouseClicked(letterEvent);
-        buttonsPaneSecondLine.add(btn_f, 4, 2);
-
-        Button btn_g = new MyButton("G");
-        btn_g.setOnMouseClicked(letterEvent);
-        buttonsPaneSecondLine.add(btn_g, 5, 2);
-
-        Button btn_h = new MyButton("H");
-        btn_h.setOnMouseClicked(letterEvent);
-        buttonsPaneSecondLine.add(btn_h, 6, 2);
-
-        Button btn_j = new MyButton("J");
-        btn_j.setOnMouseClicked(letterEvent);
-        buttonsPaneSecondLine.add(btn_j, 7, 2);
-
-        Button btn_k = new MyButton("K");
-        btn_k.setOnMouseClicked(letterEvent);
-        buttonsPaneSecondLine.add(btn_k, 8, 2);
-
-        Button btn_l = new MyButton("L");
-        btn_l.setOnMouseClicked(letterEvent);
-        buttonsPaneSecondLine.add(btn_l, 9, 2);
-
-        Button btn_z = new MyButton("Z");
-        btn_z.setOnMouseClicked(letterEvent);
-        buttonsPaneThirdLine.add(btn_z, 2, 3);
-
-        Button btn_x = new MyButton("X");
-        btn_x.setOnMouseClicked(letterEvent);
-        buttonsPaneThirdLine.add(btn_x, 3, 3);
-
-        Button btn_c = new MyButton("C");
-        btn_c.setOnMouseClicked(letterEvent);
-        buttonsPaneThirdLine.add(btn_c, 4, 3);
-
-        Button btn_v = new MyButton("V");
-        btn_v.setOnMouseClicked(letterEvent);
-        buttonsPaneThirdLine.add(btn_v, 5, 3);
-
-        Button btn_b = new MyButton("B");
-        btn_b.setOnMouseClicked(letterEvent);
-        buttonsPaneThirdLine.add(btn_b, 6, 3);
-
-        Button btn_n = new MyButton("N");
-        btn_n.setOnMouseClicked(letterEvent);
-        buttonsPaneThirdLine.add(btn_n, 7, 3);
-
-        Button btn_m = new MyButton("M");
-        btn_m.setOnMouseClicked(letterEvent);
-        buttonsPaneThirdLine.add(btn_m, 8, 3);
+        String[] lettersThirdLine = {"Z", "X", "C", "V", "B", "N", "M"};
+        for (int i = 0; i < 7; i++) {
+            createButton(buttonsPaneThirdLine, letterEvent, lettersThirdLine[i], i + 2, 3);
+        }
 
         Button btn_enter = new MyButton("↵");
         btn_enter.setMinWidth(75);
@@ -230,12 +135,29 @@ public class Wordle extends Application {
         Button btn_giveUp = new MyButton("give up");
         btn_giveUp.setPrefWidth(110);
         btn_giveUp.setPrefHeight(10);
+        btn_giveUp.setFont(Font.font("Arial", 18));
         btn_giveUp.setOnMouseClicked((EventHandler<Event>) event -> giveUp());
         topLinePane.add(btn_giveUp, 1, 1);
+
+        Button btn_newGame = new MyButton("new game");
+        btn_newGame.setPrefWidth(110);
+        btn_newGame.setPrefHeight(10);
+        btn_newGame.setFont(Font.font("Arial", 18));
+        btn_newGame.setOnMouseClicked((EventHandler<Event>) event -> newGame());
+        topLinePane.add(btn_newGame, 1, 2);
+    }
+
+
+    private void createButton(Pane pane, LetterEvent letterEvent, String text, int column, int row) {
+        MyButton button = new MyButton(text);
+        button.setOnMouseClicked(letterEvent);
+        buttons.put(text, button);
+        pane.add(button, column, row);
     }
 
 
     private void giveUp() {
+        Message.showWord(word);
         isEndOfGame = true;
     }
 
@@ -247,7 +169,6 @@ public class Wordle extends Application {
         if (index == 0 || counter == 0) {
             return;
         }
-        Message.clean();
         index--;
         counter--;
         attempt = attempt.substring(0, attempt.length() - 1);
@@ -257,10 +178,11 @@ public class Wordle extends Application {
 
     private void enter() {
         if (isEndOfGame) {
-            newGame();
+            return;
         }
 
         if (counter != 5) {
+            Message.wordTooShort();
             return;
         }
 
@@ -271,32 +193,39 @@ public class Wordle extends Application {
 
         counter = 0;
         char[] attemptInChars = attempt.toCharArray();
-        attempt = "";
+        word = word.toUpperCase();
+
         for (int i = 0; i < WORDLE_LENGTH; i++) {
-            boolean contains = false;
-            for (char c : wordle) {
-                if (c == attemptInChars[i]) {
-                    contains = true;
-                    break;
+            String symbol = String.valueOf(attempt.charAt(i));
+            if (word.contains(symbol)) {
+                recolorElements(symbol, i, "yellow");
+                if (String.valueOf(word.charAt(i)).equals(symbol)) {
+                    recolorElements(symbol, i, "green");
                 }
-            }
-            if (contains) {
-                arrayOfTiles.get(index - 5 + i).setStyle("-fx-control-inner-background: yellow;");
             } else {
-                arrayOfTiles.get(index - 5 + i).setStyle("-fx-control-inner-background: gray;");
-            }
-            if (attemptInChars[i] == wordle[i]) {
-                arrayOfTiles.get(index - 5 + i).setStyle("-fx-control-inner-background: green;");
+                recolorElements(symbol, i, "gray");
             }
         }
-        if (Arrays.equals(attemptInChars, wordle)) {
+        attempt = "";
+        if (index >= arrayOfTiles.size()) {
             isEndOfGame = true;
-            if (index > arrayOfTiles.size()) {
-                System.out.println("You lose");
-            } else {
+            System.out.println("You lose");
+            Message.youLose(word);
+        } else {
+            if (Arrays.equals(attemptInChars, wordle)) {
                 System.out.println("You win");
+                Message.youWin();
             }
         }
+    }
+
+
+    private void recolorElements(String symbol, int i, String color) {
+        MyButton button = buttons.get(symbol);
+        if (button != null) {
+            button.setStyle("-fx-base: " + color);
+        }
+        arrayOfTiles.get(index - 5 + i).setStyle("-fx-control-inner-background: " + color + ";");
     }
 
 
@@ -318,11 +247,11 @@ public class Wordle extends Application {
         counter = 0;
         attempt = "";
         isEndOfGame = false;
-        Message.clean();
         for (Tile tile : arrayOfTiles) {
             tile.setText("");
             tile.setStyle("-fx-control-inner-background: white;");
         }
+        buttons.forEach((key, value) -> value.setStyle("-fx-base: "));
         getWordle();
     }
 
@@ -383,7 +312,7 @@ public class Wordle extends Application {
             statement = connection.createStatement();
             resultSet = statement.executeQuery(query);
             while (resultSet.next()) {
-                String word = resultSet.getString(2);
+                word = resultSet.getString(2);
                 wordle = word.toUpperCase().toCharArray();
                 System.out.println(word);
             }

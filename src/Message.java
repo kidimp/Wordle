@@ -1,21 +1,25 @@
-import javafx.scene.control.TextField;
-
+import java.util.Arrays;
 
 public class Message {
-    static TextField text = new TextField();
+    private static final MyAlert alert = new MyAlert();
 
     public static void wordNotFound() {
-        text = new TextField("Word is not found");
-        text.setFont(Wordle.font);
-        text.setPrefWidth(290);
-        Wordle.messagePane.add(text, 16, 3);
+        alert.show("Word is not found");
     }
 
+    public static void wordTooShort() {
+        alert.show("Word is too short");
+    }
 
-    public static void clean() {
-        text = new TextField("clean");
-        text.setFont(Wordle.font);
-        text.setPrefWidth(290);
-        Wordle.messagePane.add(text, 16, 3);
+    public static void youLose(String word) {
+        alert.show("You lost! The answer is \"" + word + "\"");
+    }
+
+    public static void youWin() {
+        alert.show("You win!");
+    }
+
+    public static void showWord(String word) {
+        alert.show("The answer is \"" + word + "\"");
     }
 }
