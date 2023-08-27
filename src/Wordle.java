@@ -31,9 +31,9 @@ import java.util.HashMap;
  * For the correct work of program it is necessary download and install JavaFX application.
  * File - Project Structure - Libraries - From Maven, in the searching line type fx,
  * Choose from the list org.openjfx:javafx-fxml:11.0.2
- * Install in the folder with program.
  * In Run - Edit Configurations - VM options write
  * --module-path "/Users/pras/IdeaProjects/Wordle/lib" --add-modules javafx.controls,javafx.fxml
+ * --module-path "C:\Users\Chous\IdeaProjects\Wordle\lib" --add-modules javafx.controls,javafx.fxml
  */
 
 public class Wordle extends Application {
@@ -61,7 +61,7 @@ public class Wordle extends Application {
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.setTitle("WORDLE");
-            stage.setWidth(610);
+            stage.setWidth(635);
             stage.setHeight(610);
             stage.setResizable(false);
             addComponents(root);
@@ -279,8 +279,8 @@ public class Wordle extends Application {
 
     public static void getConnectionToDB() {
         String url = "jdbc:mysql://localhost:3306/wordle";
-        String user = "root";
-        String password = "prasby";
+        String user = "chous";
+        String password = "chous";
 
         try {
             System.out.println("Establishing connection to database");
